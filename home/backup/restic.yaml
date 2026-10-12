@@ -102,11 +102,19 @@ spec:
               command: ["/bin/sh", "-ec"]
               args:
                 - |
+                  # Exit 3: snapshot saved but some files vanished or changed mid-run
+                  # (e.g. Immich's storage template moving them); carry on to forget.
+                  rc=0
                   restic backup --host home-k8s --tag home --retry-lock 2h \
                     --exclude /srv/immich/model-cache \
                     --exclude /srv/immich/upload/backups \
                     --exclude /pvc/syncthing/config/index-v2 \
-                    /srv/photos /srv/immich /srv/files /dumps /pvc
+                    /srv/photos /srv/immich /srv/files /dumps /pvc || rc=$?
+                  if [ "$rc" -eq 3 ]; then
+                    echo "warning: some files could not be read; snapshot saved"
+                  elif [ "$rc" -ne 0 ]; then
+                    exit "$rc"
+                  fi
                   restic forget --host home-k8s --group-by host --retry-lock 2h --prune \
                     --keep-daily 7 --keep-weekly 4 --keep-monthly 6
               env:
