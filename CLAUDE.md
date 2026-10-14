@@ -65,8 +65,12 @@ password login. Status page and cors are public.
   GitHub, LinkedIn) use the `link existing only` first-login flow: a login links
   to the realm user with the same verified email, anyone else is refused. A
   username needs at least 3 characters.
+- `google2` ("Google (second account)") links a user's second Google account
+  (Keycloak allows one link per IdP). To link one: set the user's email to the
+  second address, they log in with that button, set the email back.
 - Groups: `family` (Files, Immich, Grafana Viewer), `admins` (Grafana Admin,
-  File Browser admin, Syncthing GUI), `gramps` (GrampsWeb, including relatives
+  File Browser admin, Syncthing GUI, `kcfam` realm admin at
+  `id.kcfam.us/admin/kcfam/console`), `gramps` (GrampsWeb, including relatives
   who have nothing else).
 - `kcfam-realm.json` (clients, groups, the first-login flow, IdPs) is applied
   to the live realm by the `keycloak-config-cli` PostSync Job on every sync of

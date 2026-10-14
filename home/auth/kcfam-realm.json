@@ -266,7 +266,12 @@
     },
     {
       "name": "admins",
-      "path": "/admins"
+      "path": "/admins",
+      "clientRoles": {
+        "realm-management": [
+          "realm-admin"
+        ]
+      }
     },
     {
       "name": "gramps",
