@@ -291,6 +291,23 @@
       }
     },
     {
+      "alias": "google2",
+      "displayName": "Google (second account)",
+      "providerId": "google",
+      "enabled": true,
+      "trustEmail": true,
+      "storeToken": false,
+      "linkOnly": false,
+      "firstBrokerLoginFlowAlias": "link existing only",
+      "config": {
+        "clientId": "$(env:KC_GOOGLE_CLIENT_ID)",
+        "clientSecret": "$(env:KC_GOOGLE_CLIENT_SECRET)",
+        "defaultScope": "openid email profile",
+        "prompt": "select_account",
+        "syncMode": "IMPORT"
+      }
+    },
+    {
       "alias": "github",
       "displayName": "GitHub",
       "providerId": "github",
