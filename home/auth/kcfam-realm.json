@@ -276,6 +276,10 @@
     {
       "name": "gramps",
       "path": "/gramps"
+    },
+    {
+      "name": "gramps-editors",
+      "path": "/gramps-editors"
     }
   ],
   "identityProviders": [
