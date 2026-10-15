@@ -25,15 +25,19 @@ data:
   GUNICORN_NUM_WORKERS: "2"
   GRAMPSWEB_BASE_URL: https://gramps.kcfam.us
   # Keycloak realm kcfam is the only login. Accounts are bound to a Keycloak
-  # user ID in the user DB's oidc_accounts table, never by email; a new person
-  # needs a Keycloak user (group gramps) and an oidc_accounts row, or their
-  # first login creates a fresh disabled account.
+  # user ID in the user DB's oidc_accounts table, never by email. The role is
+  # set from the groups claim on every login (highest match wins, no match is
+  # disabled), so a new user in gramps gets Member on first login and role
+  # edits in the GrampsWeb UI are overwritten.
   GRAMPSWEB_OIDC_ENABLED: "true"
   GRAMPSWEB_OIDC_ISSUER: https://id.kcfam.us/realms/kcfam
   GRAMPSWEB_OIDC_CLIENT_ID: grampsweb
   GRAMPSWEB_OIDC_NAME: kcfam
   GRAMPSWEB_OIDC_DISABLE_LOCAL_AUTH: "true"
   GRAMPSWEB_OIDC_AUTO_REDIRECT: "true"
+  GRAMPSWEB_OIDC_GROUP_ADMIN: admins
+  GRAMPSWEB_OIDC_GROUP_EDITOR: gramps-editors
+  GRAMPSWEB_OIDC_GROUP_MEMBER: gramps
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -51,6 +55,9 @@ spec:
     metadata:
       labels:
         app: grampsweb
+      annotations:
+        # Bump after editing grampsweb-env.
+        config-revision: "1"
     spec:
       containers:
         - name: grampsweb

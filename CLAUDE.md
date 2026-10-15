@@ -70,8 +70,9 @@ password login. Status page and cors are public.
   second address, they log in with that button, set the email back.
 - Groups: `family` (Files, Immich, Grafana Viewer), `admins` (Grafana Admin,
   File Browser admin, Syncthing GUI, `kcfam` realm admin at
-  `id.kcfam.us/admin/kcfam/console`), `gramps` (GrampsWeb, including relatives
-  who have nothing else).
+  `id.kcfam.us/admin/kcfam/console`), `gramps` (GrampsWeb Member, read-only,
+  including relatives who have nothing else), `gramps-editors` (GrampsWeb
+  Editor).
 - `kcfam-realm.json` (clients, groups, the first-login flow, IdPs) is applied
   to the live realm by the `keycloak-config-cli` PostSync Job on every sync of
   `home-auth`, so console edits to those are reverted; change the file. Hooks
@@ -95,9 +96,11 @@ password login. Status page and cors are public.
 - File Browser: matches `preferred_username` to its user, which must have login
   method `oidc`.
 - GrampsWeb: native OIDC, bound by Keycloak user ID in the `oidc_accounts` table
-  of `/app/users/users.sqlite`, never by email. A new person needs a Keycloak
-  user in `gramps` plus that row (`create_oidc_account(guid, "custom", sub)`),
-  or their first login makes a fresh disabled account.
+  of `/app/users/users.sqlite`, never by email. The role follows the groups
+  claim on every login (`GRAMPSWEB_OIDC_GROUP_*`: `admins` Admin,
+  `gramps-editors` Editor, `gramps` Member; highest wins, none is disabled), so
+  role edits in the GrampsWeb UI are overwritten at next login. A new person
+  needs only a Keycloak user in `gramps`; their first login creates the account.
 - Syncthing GUI has no login of its own; oauth2-proxy (`admins`) and a
   NetworkPolicy (Traefik only on :8384) guard it.
 

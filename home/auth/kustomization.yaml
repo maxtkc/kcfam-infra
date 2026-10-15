@@ -17,7 +17,8 @@
 # - Defining clientScopes here would stop Keycloak creating the built-in ones
 #   (email, profile, roles), so the groups mapper sits on each client instead.
 # - Groups: `family` (oauth2-family, Grafana Viewer, File Browser), `admins`
-#   (oauth2-admins, Grafana Admin, File Browser admin), `gramps` (GrampsWeb).
+#   (oauth2-admins, Grafana Admin, File Browser admin, GrampsWeb Admin),
+#   `gramps` (GrampsWeb Member), `gramps-editors` (GrampsWeb Editor).
 #   Relatives with only a GrampsWeb account are in `gramps` alone.
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
