@@ -3,7 +3,9 @@
 ## must have login method "oidc"; `admins` members get admin. Password login is
 ## off; break-glass is enabling it and logging in as `admin`, a local password
 ## user reset to FILEBROWSER_ADMIN_PASSWORD on every start. The two per-user sources are off for new users; access is
-## granted per user in Settings -> Users (stkchristy: stkchristy and shared).
+## granted per user in Settings -> Users (stkchristy: stkchristy and shared), with
+## per-source file permissions. Users, scopes and the token signing key live in
+## data/filebrowser.sqlite; data/database.db is the v1 BoltDB it was migrated from.
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -11,9 +13,13 @@ metadata:
   namespace: home
 data:
   config.yaml: |
-    server:
+    http:
       port: 80
-      database: /home/filebrowser/data/database.db
+      trustProxyHeaders: true
+    server:
+      database:
+        path: /home/filebrowser/data/filebrowser.sqlite
+        migrateFrom: /home/filebrowser/data/database.db
       logging:
         - levels: "info|warning|error"
       sources:
@@ -21,14 +27,17 @@ data:
           name: maxtkc
           config:
             defaultEnabled: false
+            defaultPermissions: { view: true, download: true, modify: true, create: true, delete: true }
         - path: /srv/files/stkchristy
           name: stkchristy
           config:
             defaultEnabled: false
+            defaultPermissions: { view: true, download: true, modify: true, create: true, delete: true }
         - path: /srv/files/shared
           name: shared
           config:
             defaultEnabled: true
+            defaultPermissions: { view: true, download: true, modify: true, create: true, delete: true }
     auth:
       adminUsername: admin
       methods:
@@ -51,12 +60,8 @@ data:
         permissions:
           api: false
           admin: false
-          modify: true
           share: true
           realtime: false
-          delete: true
-          create: true
-          download: true
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -88,7 +93,7 @@ spec:
         app: filebrowser
       annotations:
         # Restart on config change; bump with the ConfigMap.
-        config-revision: "3"
+        config-revision: "4"
     spec:
       securityContext:
         runAsUser: 1000
@@ -96,7 +101,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: filebrowser
-          image: gtstef/filebrowser:1.5.8-stable
+          image: gtstef/filebrowser:2.0.1-stable
           env:
             - name: FILEBROWSER_CONFIG
               value: /home/filebrowser/config/config.yaml
@@ -110,11 +115,6 @@ spec:
                 secretKeyRef:
                   name: files
                   key: FILEBROWSER_OIDC_CLIENT_SECRET
-            - name: FILEBROWSER_JWT_TOKEN_SECRET
-              valueFrom:
-                secretKeyRef:
-                  name: files
-                  key: FILEBROWSER_JWT_TOKEN_SECRET
             - name: TZ
               value: America/New_York
           ports:
