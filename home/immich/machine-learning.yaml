@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: machine-learning
-          image: ghcr.io/immich-app/immich-machine-learning:v3.3.1
+          image: ghcr.io/immich-app/immich-machine-learning:v3.3.5
           env:
             # Optimized re-exports of the same models; embeddings are unchanged.
             - name: MACHINE_LEARNING_MODEL_REVISION
