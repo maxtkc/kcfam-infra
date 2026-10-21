@@ -39,7 +39,7 @@ spec:
         fsGroup: 1000
       initContainers:
         - name: gui-config
-          image: syncthing/syncthing:2.1.6
+          image: syncthing/syncthing:2.1.7
           command: ["/bin/sh", "-ec"]
           args:
             - |
@@ -56,7 +56,7 @@ spec:
             - { name: config, mountPath: /var/syncthing }
       containers:
         - name: syncthing
-          image: syncthing/syncthing:2.1.6
+          image: syncthing/syncthing:2.1.7
           env:
             - name: TZ
               value: America/New_York
