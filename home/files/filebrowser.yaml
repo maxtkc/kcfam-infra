@@ -19,7 +19,6 @@ data:
     server:
       database:
         path: /home/filebrowser/data/filebrowser.sqlite
-        migrateFrom: /home/filebrowser/data/database.db
       logging:
         - levels: "info|warning|error"
       sources:
@@ -93,7 +92,7 @@ spec:
         app: filebrowser
       annotations:
         # Restart on config change; bump with the ConfigMap.
-        config-revision: "4"
+        config-revision: "5"
     spec:
       securityContext:
         runAsUser: 1000
