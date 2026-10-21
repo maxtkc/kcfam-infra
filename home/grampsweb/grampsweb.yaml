@@ -61,7 +61,7 @@ spec:
     spec:
       containers:
         - name: grampsweb
-          image: ghcr.io/gramps-project/grampsweb:26.7.0
+          image: ghcr.io/gramps-project/grampsweb:26.10.2
           envFrom:
             - configMapRef:
                 name: grampsweb-env
@@ -126,7 +126,7 @@ spec:
               topologyKey: kubernetes.io/hostname
       containers:
         - name: celery
-          image: ghcr.io/gramps-project/grampsweb:26.7.0
+          image: ghcr.io/gramps-project/grampsweb:26.10.2
           # args, not command: the image entrypoint loads the secret key from /app/secret.
           args: [celery, -A, gramps_webapi.celery, worker, --loglevel=INFO, --concurrency=2]
           envFrom:
@@ -174,7 +174,7 @@ spec:
     spec:
       containers:
         - name: redis
-          image: redis:8.6.0-alpine
+          image: redis:8.6.7-alpine
           args: [--save, "", --appendonly, "no"]
           ports:
             - containerPort: 6379
