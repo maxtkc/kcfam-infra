@@ -22,7 +22,7 @@ spec:
         fsGroup: 1000
       initContainers:
         - name: install
-          image: node:22.23.3-alpine
+          image: node:22.23.4-alpine
           workingDir: /app
           command: [sh, -c]
           args:
@@ -33,7 +33,7 @@ spec:
             - { name: tmp, mountPath: /tmp }
       containers:
         - name: cors-proxy
-          image: node:22.23.3-alpine
+          image: node:22.23.4-alpine
           workingDir: /app
           command: [node, server.js]
           env:
