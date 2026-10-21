@@ -72,7 +72,7 @@ spec:
             # Consistent copies of GrampsWeb's SQLite files (tree and users);
             # the whole PVC is also backed up as-is under /pvc.
             - name: dump-grampsweb
-              image: ghcr.io/gramps-project/grampsweb:26.7.0
+              image: ghcr.io/gramps-project/grampsweb:26.10.2
               command: ["python3", "-c"]
               args:
                 - |
@@ -98,7 +98,7 @@ spec:
                 - { name: grampsweb, mountPath: /pvc/grampsweb, readOnly: true }
           containers:
             - name: restic
-              image: restic/restic:0.18.1
+              image: restic/restic:0.19.1
               command: ["/bin/sh", "-ec"]
               args:
                 - |
@@ -190,7 +190,7 @@ spec:
           restartPolicy: Never
           containers:
             - name: restic
-              image: restic/restic:0.18.1
+              image: restic/restic:0.19.1
               args: ["check", "--retry-lock", "2h", "--read-data-subset=5%"]
               env:
                 - name: RESTIC_REPOSITORY
@@ -241,7 +241,7 @@ spec:
           restartPolicy: Never
           containers:
             - name: restic
-              image: restic/restic:0.18.1
+              image: restic/restic:0.19.1
               command: ["/bin/sh", "-ec"]
               args:
                 - |
@@ -312,7 +312,7 @@ spec:
           restartPolicy: Never
           containers:
             - name: restic
-              image: restic/restic:0.18.1
+              image: restic/restic:0.19.1
               args: ["check", "--retry-lock", "3h", "--read-data-subset=2%"]
               env:
                 - name: RESTIC_REPOSITORY
