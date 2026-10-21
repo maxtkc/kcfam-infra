@@ -81,7 +81,7 @@ password login. Status page and cors are public.
   are not in it: they and their IdP links are database state, created in the
   console or API. It defines no `clientScopes` (that would skip the built-in
   email/profile scopes). The config-cli image is built per Keycloak version;
-  bump its tag with Keycloak (6.5.1-26.5.5 runs fine against 26.7.5).
+  bump its tag with Keycloak (6.5.1-26.5.5 runs fine against 26.8.1).
 - Break-glass: master-realm `admin`, password `KEYCLOAK_ADMIN_PASSWORD` in
   `home/auth/auth.enc.yaml`. App-side: File Browser local `admin` (enable the
   password method), Immich `passwordLogin` in `home/immich/immich-config.enc.yaml`,
