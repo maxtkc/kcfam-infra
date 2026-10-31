@@ -109,6 +109,10 @@ spec:
       containers:
         - name: gluetun
           image: qmcgaw/gluetun:v3.41.3
+          # ip rules outlive container restarts in the pod netns; clear the old WireGuard ones.
+          command: ["/bin/sh", "-c"]
+          args:
+            - ip rule del table 51820 2>/dev/null; ip -6 rule del table 51820 2>/dev/null; exec /gluetun-entrypoint
           env:
             - { name: VPN_SERVICE_PROVIDER, value: nordvpn }
             - { name: VPN_TYPE, value: wireguard }
