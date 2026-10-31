@@ -109,10 +109,13 @@ spec:
       containers:
         - name: gluetun
           image: qmcgaw/gluetun:v3.41.3
-          # The pod netns outlives container restarts; reset what gluetun left in it.
+          # The pod netns and /etc/resolv.conf outlive container restarts; reset what
+          # gluetun left in them. A resolv.conf pointing at gluetun's own 127.0.0.1
+          # makes it forward DNS to itself until OOM.
           command: ["/bin/sh", "-c"]
           args:
             - |
+              printf 'nameserver 10.43.0.10\nsearch home.svc.cluster.local svc.cluster.local cluster.local\noptions ndots:5\n' > /etc/resolv.conf
               ip link del tun0 2>/dev/null
               for f in -4 -6; do
                 while ip $f rule del table 51820 2>/dev/null; do :; done
@@ -131,8 +134,6 @@ spec:
             # Accept the proxy and control server from other pods.
             - { name: FIREWALL_INPUT_PORTS, value: "8888,8000" }
             - { name: HEALTH_SERVER_ADDRESS, value: ":9999" }
-            # The blocklist download spikes memory past the limit.
-            - { name: BLOCK_MALICIOUS, value: "off" }
             - { name: TZ, value: America/New_York }
           envFrom:
             # WIREGUARD_PRIVATE_KEY, HTTP_CONTROL_SERVER_AUTH_DEFAULT_ROLE
@@ -159,7 +160,7 @@ spec:
               cpu: 10m
               memory: 32Mi
             limits:
-              memory: 256Mi
+              memory: 128Mi
           securityContext:
             capabilities:
               add: [NET_ADMIN]
