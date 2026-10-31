@@ -109,10 +109,20 @@ spec:
       containers:
         - name: gluetun
           image: qmcgaw/gluetun:v3.41.3
-          # ip rules outlive container restarts in the pod netns; clear the old WireGuard ones.
+          # The pod netns outlives container restarts; reset what gluetun left in it.
           command: ["/bin/sh", "-c"]
           args:
-            - ip rule del table 51820 2>/dev/null; ip -6 rule del table 51820 2>/dev/null; exec /gluetun-entrypoint
+            - |
+              ip link del tun0 2>/dev/null
+              for f in -4 -6; do
+                while ip $f rule del table 51820 2>/dev/null; do :; done
+                ip $f route flush table 51820 2>/dev/null
+              done
+              for t in iptables ip6tables; do
+                for c in INPUT OUTPUT FORWARD; do $t -P $c ACCEPT; done
+                for tb in filter nat mangle; do $t -t $tb -F; $t -t $tb -X; done
+              done
+              exec /gluetun-entrypoint
           env:
             - { name: VPN_SERVICE_PROVIDER, value: nordvpn }
             - { name: VPN_TYPE, value: wireguard }
