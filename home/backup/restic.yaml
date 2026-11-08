@@ -3,7 +3,8 @@
 ## (`dbedfab23807`, `docker-final`, `ha-ma-final`) are never forgotten.
 ##
 ## Sources are mounted at their host paths so snapshot paths match the host.
-## /dumps is where per-database pg_dump initContainers write. Dumps are
+## /dumps is where per-database pg_dump initContainers write, each first
+## waiting up to 10 min for its database (catch-up runs after a reboot). Dumps are
 ## uncompressed (-Z0) so restic can deduplicate them day to day. Immich's own
 ## gzipped dumps (/srv/immich/upload/backups) are excluded as they do not
 ## deduplicate. Longhorn PVCs are mounted read-only under /pvc/<name>.
@@ -31,8 +32,11 @@ spec:
           initContainers:
             - name: dump-immich
               image: ghcr.io/immich-app/postgres:14-vectorchord1.1.1-pgvector0.8.5
-              command: ["pg_dump", "-h", "immich-postgres", "-U", "immich", "-d", "immich",
-                        "-Fc", "-Z0", "-f", "/dumps/immich.dump"]
+              command: ["/bin/sh", "-ec"]
+              args:
+                - |
+                  for i in $(seq 120); do pg_isready -q -h immich-postgres -U immich && break; sleep 5; done
+                  exec pg_dump -h immich-postgres -U immich -d immich -Fc -Z0 -f /dumps/immich.dump
               env:
                 - name: PGPASSWORD
                   valueFrom:
@@ -50,8 +54,11 @@ spec:
             # Keycloak user IDs are what Immich, File Browser and GrampsWeb link to.
             - name: dump-keycloak
               image: ghcr.io/cloudnative-pg/postgresql:18.3
-              command: ["pg_dump", "-h", "keycloak-pg-rw", "-U", "keycloak", "-d", "keycloak",
-                        "-Fc", "-Z0", "-f", "/dumps/keycloak.dump"]
+              command: ["/bin/sh", "-ec"]
+              args:
+                - |
+                  for i in $(seq 120); do pg_isready -q -h keycloak-pg-rw -U keycloak && break; sleep 5; done
+                  exec pg_dump -h keycloak-pg-rw -U keycloak -d keycloak -Fc -Z0 -f /dumps/keycloak.dump
               # The image runs as uid 26; /srv/backup-dumps is root's.
               securityContext:
                 runAsUser: 0
