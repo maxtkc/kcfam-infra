@@ -28,7 +28,9 @@ Routes (namespace `home` unless noted):
 k3s Traefik (`infra-traefik` in gtfs-zone-infra, values in
 `infra/traefik/values.yaml`) owns host :80 (redirect to https) and :443 through
 ServiceLB, for both kcfam.us and gtfs.zone. Certificates are cert-manager DNS-01
-(ClusterIssuer `letsencrypt-porkbun`), one per host. `<name>.new.kcfam.us` routes
+(ClusterIssuer `letsencrypt-porkbun`), one per host. The issuer and its Porkbun
+webhook are in `home/cert-manager`; cert-manager itself and gtfs.zone's
+Cloudflare issuer `letsencrypt` are in gtfs-zone-infra. `<name>.new.kcfam.us` routes
 use the wildcard cert from `home/base`.
 
 ## Working on the cluster

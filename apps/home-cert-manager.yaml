@@ -1,0 +1,34 @@
+## Porkbun DNS-01 for kcfam.us: the Talinx webhook chart and the
+## `letsencrypt-porkbun` ClusterIssuer (home/cert-manager). cert-manager itself
+## is installed by gtfs-zone-infra.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: home-cert-manager
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  sources:
+    - repoURL: https://talinx.github.io/cert-manager-webhook-porkbun
+      chart: cert-manager-webhook-porkbun
+      targetRevision: 1.0.0
+      helm:
+        valueFiles:
+          - $values/home/cert-manager/webhook-values.yaml
+    - repoURL: https://github.com/maxtkc/kcfam-infra.git
+      targetRevision: main
+      ref: values
+      path: home/cert-manager
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cert-manager
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true

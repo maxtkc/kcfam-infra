@@ -1,0 +1,26 @@
+## Let's Encrypt issuer for kcfam.us, solving DNS-01 through the Porkbun webhook
+## (chart in apps/home-cert-manager.yaml). A ClusterIssuer reads its Secrets
+## from the cert-manager namespace, hence porkbun.enc.yaml there.
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-porkbun
+spec:
+  acme:
+    email: maxkatzchristy@gmail.com
+    server: https://acme-v02.api.letsencrypt.org/directory
+    privateKeySecretRef:
+      name: letsencrypt-porkbun-account-key
+    solvers:
+      - dns01:
+          webhook:
+            # Must match `groupName` in webhook-values.yaml.
+            groupName: porkbun.talinx.dev
+            solverName: porkbun
+            config:
+              apiKey:
+                name: porkbun-secret
+                key: API_KEY
+              secretApiKey:
+                name: porkbun-secret
+                key: API_SECRET

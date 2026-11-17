@@ -1,0 +1,13 @@
+## Talinx cert-manager-webhook-porkbun chart values.
+groupName: porkbun.talinx.dev
+
+certManager:
+  namespace: cert-manager
+  # cert-manager's ServiceAccount (release `infra-cert-manager` in
+  # gtfs-zone-infra), bound to the solver's ClusterRole. A wrong name leaves
+  # challenges forbidden and Certificates stuck in Issuing.
+  serviceAccountName: infra-cert-manager
+
+image:
+  repository: talinx/cert-manager-webhook-porkbun
+  tag: "1.0.0"
