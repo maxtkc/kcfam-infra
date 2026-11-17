@@ -62,20 +62,20 @@ spec:
                 "buttonLabel": "Log in with kcfam"}}
               EOF
               put spaces.json <<EOF
-              {"spaces": {"docs": {
+              {"docs": {
                 "name": "docs",
                 "folder": "/srv/files/shared/docs",
                 "binding": {"prefix": "/"},
                 "access": "write",
                 "revisions": "managed",
-                "spaceIgnore": ".stfolder\n.stignore\n.stversions/\n*.sync-conflict-*\n"}}}
+                "spaceIgnore": ".stfolder\n.stignore\n.stversions/\n*.sync-conflict-*\n"}}
               EOF
               if [ ! -e users.json ]; then
                 put users.json <<EOF
-              {"users": {"maxtkc": {
+              {"maxtkc": {
                 "sso": {"providerId": "keycloak", "expectedEmail": "$KC_EMAIL_MAXTKC"},
                 "admin": true,
-                "email": "$KC_EMAIL_MAXTKC"}}}
+                "email": "$KC_EMAIL_MAXTKC"}}
               EOF
               fi
           env:
