@@ -257,6 +257,36 @@
           }
         }
       ]
+    },
+    {
+      "clientId": "silverbullet",
+      "name": "SilverBullet",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "secret": "$(env:KC_SILVERBULLET_CLIENT_SECRET)",
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": [
+        "https://notes.kcfam.us/.auth/central/oidc/callback"
+      ],
+      "webOrigins": [
+        "https://notes.kcfam.us"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "https://notes.kcfam.us/*"
+      },
+      "defaultClientScopes": [
+        "acr",
+        "basic",
+        "email",
+        "profile",
+        "roles",
+        "web-origins"
+      ]
     }
   ],
   "groups": [

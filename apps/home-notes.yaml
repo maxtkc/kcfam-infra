@@ -1,0 +1,25 @@
+## SilverBullet at notes.kcfam.us over /srv/files/shared/docs.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: home-notes
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/maxtkc/kcfam-infra.git
+    targetRevision: main
+    path: home/notes
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: home
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true

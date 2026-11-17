@@ -1,0 +1,105 @@
+## SilverBullet in multi-space mode. /data (PVC) holds server config, accounts
+## and the OIDC settings made in the Dashboard; the `docs` space is
+## /srv/files/shared/docs, mounted at the same path and synced by Syncthing.
+## The entrypoint drops to PUID/PGID 1000, the owner of /srv/files.
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: silverbullet-data
+  namespace: home
+spec:
+  accessModes: [ReadWriteOnce]
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: silverbullet
+  namespace: home
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: silverbullet
+  template:
+    metadata:
+      labels:
+        app: silverbullet
+    spec:
+      securityContext:
+        fsGroup: 1000
+      containers:
+        - name: silverbullet
+          image: ghcr.io/silverbulletmd/silverbullet:2.12.1-slim
+          env:
+            - name: PUID
+              value: "1000"
+            - name: PGID
+              value: "1000"
+            - name: TZ
+              value: America/New_York
+            - name: SB_NAME
+              value: kcfam notes
+            # Syncthing metadata and conflict copies stay out of the space.
+            - name: SB_SPACE_IGNORE
+              value: |
+                .stfolder
+                .stignore
+                .stversions/
+                *.sync-conflict-*
+          ports:
+            - { name: http, containerPort: 3000 }
+          readinessProbe:
+            tcpSocket:
+              port: 3000
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 50m
+              memory: 128Mi
+            limits:
+              memory: 512Mi
+          volumeMounts:
+            - { name: data, mountPath: /data }
+            - { name: docs, mountPath: /srv/files/shared/docs }
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: silverbullet-data
+        - name: docs
+          hostPath: { path: /srv/files/shared/docs, type: Directory }
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: silverbullet
+  namespace: home
+spec:
+  selector:
+    app: silverbullet
+  ports:
+    - port: 3000
+---
+## :3000 only from Traefik (and kubectl port-forward, which bypasses policy).
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: silverbullet
+  namespace: home
+spec:
+  podSelector:
+    matchLabels:
+      app: silverbullet
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: traefik
+      ports:
+        - { port: 3000, protocol: TCP }

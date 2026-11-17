@@ -151,6 +151,7 @@ spec:
                 - { name: filebrowser, mountPath: /pvc/filebrowser, readOnly: true }
                 - { name: syncthing, mountPath: /pvc/syncthing, readOnly: true }
                 - { name: tgtg, mountPath: /pvc/tgtg, readOnly: true }
+                - { name: silverbullet, mountPath: /pvc/silverbullet, readOnly: true }
           volumes:
             - name: repo
               hostPath: { path: /mnt/backups/restic, type: Directory }
@@ -175,6 +176,8 @@ spec:
               persistentVolumeClaim: { claimName: syncthing-config, readOnly: true }
             - name: tgtg
               persistentVolumeClaim: { claimName: tgtg-tokens, readOnly: true }
+            - name: silverbullet
+              persistentVolumeClaim: { claimName: silverbullet-data, readOnly: true }
 ---
 ## Reads back 5% of pack data each week, so the whole repo is re-read about
 ## every five months.
