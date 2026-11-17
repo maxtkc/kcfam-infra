@@ -43,14 +43,8 @@ spec:
               value: "1000"
             - name: TZ
               value: America/New_York
-            # No SB_NAME: setting it boots single-space mode (no accounts, no OIDC).
-            # Syncthing metadata and conflict copies stay out of the space.
-            - name: SB_SPACE_IGNORE
-              value: |
-                .stfolder
-                .stignore
-                .stversions/
-                *.sync-conflict-*
+            # No SB_* space settings (SB_NAME, SB_SPACE_IGNORE, ...): any of them
+            # boots single-space mode, which has no accounts or OIDC.
           ports:
             - { name: http, containerPort: 3000 }
           readinessProbe:
