@@ -21,6 +21,16 @@ spec:
       services:
         - name: silverbullet
           port: 3000
+    # SilverBullet's API (/.fs, /.auth, /.config, ...) answers 401/403 itself.
+    # oauth2-errors would swap those for the sign-in page, which clears the
+    # oauth2-proxy cookie, so these paths get the group check only.
+    - match: Host(`notes.kcfam.us`) && PathRegexp(`^/\.`)
+      kind: Rule
+      middlewares:
+        - name: oauth2-family
+      services:
+        - name: silverbullet
+          port: 3000
     - match: Host(`notes.kcfam.us`)
       kind: Rule
       middlewares:
