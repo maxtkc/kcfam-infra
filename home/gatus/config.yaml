@@ -90,18 +90,6 @@ endpoints:
     alerts:
       - type: telegram
 
-  - name: CORS proxy
-    group: Apps
-    url: https://cors.kcfam.us/
-    interval: 120s
-    conditions:
-      # The proxy answers a request with no target URL with 400.
-      - "[STATUS] == 400"
-      - "[BODY] == pat(*invalid or missing target URL*)"
-      - "[CERTIFICATE_EXPIRATION] > 240h"
-    alerts:
-      - type: telegram
-
   # Internal
   - name: Immich machine learning
     group: Internal

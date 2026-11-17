@@ -13,7 +13,6 @@ cluster on `kcfam`.
 | GrampsWeb | gramps.kcfam.us | `home/grampsweb` |
 | Grafana, Prometheus, Alertmanager | gf.kcfam.us | `home/monitoring` |
 | Gatus | status.kcfam.us | `home/gatus` |
-| cors-anywhere | cors.kcfam.us | `home/cors-proxy` |
 | tgtg notifier, gluetun | (no hostname) | `home/tgtg` |
 | restic backups (local + B2) | | `home/backup` |
 | Personal site | max.kcfam.us | GitHub Pages (`maxtkc/personal-site`) |

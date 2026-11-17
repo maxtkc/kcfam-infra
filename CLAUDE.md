@@ -17,7 +17,6 @@ Routes (namespace `home` unless noted):
 - `gramps.kcfam.us`: GrampsWeb (`home/grampsweb`)
 - `gf.kcfam.us`: kube-prometheus-stack (`apps/home-monitoring.yaml`, `home/monitoring`)
 - `status.kcfam.us`: Gatus (`home/gatus/config.yaml`)
-- `cors.kcfam.us`: cors-anywhere (`home/cors-proxy`)
 - `argocd.kcfam.us`: alias of the gtfs ArgoCD (`home/argocd-alias`)
 - `max.kcfam.us`: GitHub Pages from `maxtkc/personal-site`, a CNAME to
   `maxtkc.github.io`, nothing on kcfam
@@ -59,7 +58,7 @@ use the wildcard cert from `home/base`.
 ## Login
 
 Every app logs in through Keycloak (`home/auth`, realm `kcfam`); no app keeps a
-password login. Status page and cors are public.
+password login. The status page is public.
 
 - Realm users are created by hand (admin console or API). The IdPs (Google,
   GitHub, LinkedIn) use the `link existing only` first-login flow: a login links
