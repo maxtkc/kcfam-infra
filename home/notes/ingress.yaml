@@ -1,0 +1,46 @@
+## notes.kcfam.us, `family` only through oauth2-proxy (the space allows anonymous
+## writes). The service worker and /.client/ are static app code and skip the
+## proxy so the PWA keeps working.
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: notes
+  namespace: home
+  annotations:
+    external-dns.alpha.kubernetes.io/target: kcfam.us
+spec:
+  entryPoints: [websecure]
+  routes:
+    - match: Host(`notes.kcfam.us`) && PathPrefix(`/oauth2/`)
+      kind: Rule
+      services:
+        - name: oauth2-proxy
+          port: 4180
+    - match: Host(`notes.kcfam.us`) && (Path(`/service_worker.js`) || PathPrefix(`/.client/`))
+      kind: Rule
+      services:
+        - name: silverbullet
+          port: 3000
+    - match: Host(`notes.kcfam.us`)
+      kind: Rule
+      middlewares:
+        - name: oauth2-errors
+        - name: oauth2-family
+      services:
+        - name: silverbullet
+          port: 3000
+  tls:
+    secretName: notes-kcfam-us-tls
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: notes-kcfam-us-tls
+  namespace: home
+spec:
+  secretName: notes-kcfam-us-tls
+  dnsNames:
+    - notes.kcfam.us
+  issuerRef:
+    name: letsencrypt-porkbun
+    kind: ClusterIssuer

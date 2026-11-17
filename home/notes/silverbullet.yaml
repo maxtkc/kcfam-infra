@@ -1,6 +1,13 @@
-## SilverBullet in multi-space mode. /data (PVC) holds server config, accounts
-## and the OIDC settings made in the Dashboard; the `docs` space is
-## /srv/files/shared/docs, mounted at the same path and synced by Syncthing.
+## SilverBullet in multi-space mode, configured from this file instead of the
+## setup wizard. The init container writes server.json, spaces.json and
+## authentication.json (Keycloak client `silverbullet`) on every start, and
+## users.json (one SSO admin, KC_EMAIL_MAXTKC) only when missing, since
+## SilverBullet stores login bindings there.
+##
+## The `docs` space (/srv/files/shared/docs, same path inside) allows anonymous
+## writes; oauth2-proxy (`family`) in ingress.yaml decides who reaches it. The
+## admin logs in through Keycloak for the Dashboard. Revisions are a git repo
+## SilverBullet keeps in the space folder.
 ## The entrypoint drops to PUID/PGID 1000, the owner of /srv/files.
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -33,6 +40,56 @@ spec:
     spec:
       securityContext:
         fsGroup: 1000
+      initContainers:
+        - name: config
+          image: ghcr.io/silverbulletmd/silverbullet:2.12.1-slim
+          command: ["/bin/sh", "-ec"]
+          args:
+            - |
+              umask 077
+              cd /data
+              put() { cat > "$1.tmp"; mv "$1.tmp" "$1"; }
+              put server.json <<EOF
+              {"primaryUrl": "https://notes.kcfam.us", "runtimeApi": false}
+              EOF
+              put authentication.json <<EOF
+              {"revision": 1, "enabled": true, "active": {
+                "providerId": "keycloak",
+                "issuer": "https://id.kcfam.us/realms/kcfam",
+                "centralOrigin": "https://notes.kcfam.us",
+                "clientId": "silverbullet",
+                "clientSecret": "$KC_SILVERBULLET_CLIENT_SECRET",
+                "buttonLabel": "Log in with kcfam"}}
+              EOF
+              put spaces.json <<EOF
+              {"spaces": {"docs": {
+                "name": "docs",
+                "folder": "/srv/files/shared/docs",
+                "binding": {"prefix": "/"},
+                "access": "write",
+                "revisions": "managed",
+                "spaceIgnore": ".stfolder\n.stignore\n.stversions/\n*.sync-conflict-*\n"}}}
+              EOF
+              if [ ! -e users.json ]; then
+                put users.json <<EOF
+              {"users": {"maxtkc": {
+                "sso": {"providerId": "keycloak", "expectedEmail": "$KC_EMAIL_MAXTKC"},
+                "admin": true,
+                "email": "$KC_EMAIL_MAXTKC"}}}
+              EOF
+              fi
+          env:
+            - name: KC_SILVERBULLET_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef: { name: auth, key: KC_SILVERBULLET_CLIENT_SECRET }
+            - name: KC_EMAIL_MAXTKC
+              valueFrom:
+                secretKeyRef: { name: auth, key: KC_EMAIL_MAXTKC }
+          securityContext:
+            runAsUser: 1000
+            runAsGroup: 1000
+          volumeMounts:
+            - { name: data, mountPath: /data, subPath: silverbullet }
       containers:
         - name: silverbullet
           image: ghcr.io/silverbulletmd/silverbullet:2.12.1-slim

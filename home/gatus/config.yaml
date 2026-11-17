@@ -47,6 +47,17 @@ endpoints:
     alerts:
       - type: telegram
 
+  - name: Notes
+    group: Apps
+    # Skips oauth2-proxy, so it reaches SilverBullet itself.
+    url: https://notes.kcfam.us/service_worker.js
+    interval: 60s
+    conditions:
+      - "[STATUS] == 200"
+      - "[CERTIFICATE_EXPIRATION] > 240h"
+    alerts:
+      - type: telegram
+
   - name: GrampsWeb
     group: Apps
     url: https://gramps.kcfam.us/api/metadata/

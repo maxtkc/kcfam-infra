@@ -17,6 +17,7 @@ Routes (namespace `home` unless noted):
 - `gramps.kcfam.us`: GrampsWeb (`home/grampsweb`)
 - `gf.kcfam.us`: kube-prometheus-stack (`apps/home-monitoring.yaml`, `home/monitoring`)
 - `status.kcfam.us`: Gatus (`home/gatus/config.yaml`)
+- `notes.kcfam.us`: SilverBullet over `/srv/files/shared/docs` (`home/notes`)
 - `argocd.kcfam.us`: alias of the gtfs ArgoCD (`home/argocd-alias`)
 - `max.kcfam.us`: GitHub Pages from `maxtkc/personal-site`, a CNAME to
   `maxtkc.github.io`, nothing on kcfam
@@ -100,6 +101,16 @@ password login. The status page is public.
   `gramps-editors` Editor, `gramps` Member; highest wins, none is disabled), so
   role edits in the GrampsWeb UI are overwritten at next login. A new person
   needs only a Keycloak user in `gramps`; their first login creates the account.
+- SilverBullet: configured by the init container in `home/notes/silverbullet.yaml`
+  (no setup wizard): server, space and Keycloak settings are rewritten on every
+  start, so Dashboard edits to them are reverted; `users.json` is seeded once
+  (SSO admin `maxtkc`). The `docs` space allows anonymous writes and
+  oauth2-proxy (`family`) guards the host, so access follows the Keycloak group
+  and family edits carry no author. Comments are `<!-- **Name:** ... -->`
+  blocks in the file. Any `SB_*` space env var (`SB_NAME`, `SB_SPACE_IGNORE`,
+  ...) or a non-empty `/data` without `spaces.json` boots single-space mode
+  with no accounts, hence the PVC `subPath`. Revisions are a git repo SilverBullet
+  keeps in `/srv/files/shared/docs/.git`.
 - Syncthing GUI has no login of its own; oauth2-proxy (`admins`) and a
   NetworkPolicy (Traefik only on :8384) guard it.
 
@@ -109,7 +120,7 @@ password login. The status page is public.
   libraries), `/srv/immich/upload`, `/srv/immich/model-cache`,
   `/srv/files/{maxtkc,stkchristy,shared}` (uid 1000).
 - Small state is Longhorn PVCs (Postgres, GrampsWeb, Grafana, tgtg tokens,
-  Syncthing/File Browser config, Keycloak's CNPG `keycloak-pg`).
+  Syncthing/File Browser config, SilverBullet, Keycloak's CNPG `keycloak-pg`).
 - Immich mounts `/srv/photos` read-write, so a delete in Immich removes the file.
 - External-library assets were rehashed to content SHA-1 on 2026-10-08 (Immich
   scans store `sha1-path`), so phone backup skips photos already there. A scan
@@ -125,7 +136,8 @@ password login. The status page is public.
   `/srv/files` and `pg_dump`s of the Immich and Keycloak DBs to
   `/srv/backup-dumps` first. GrampsWeb's SQLite files are copied there too
   (`/dumps/grampsweb`), and the `grampsweb-data`, `filebrowser-data`,
-  `syncthing-config` and `tgtg-tokens` PVCs are mounted read-only under `/pvc`.
+  `syncthing-config`, `tgtg-tokens` and `silverbullet-data` PVCs are mounted
+  read-only under `/pvc`.
   7 daily / 4 weekly / 6 monthly. `restic-check`
   reads 5% Saturdays at 05:00. Immich's integrity checks run at 01:00 to stay
   clear of it.
