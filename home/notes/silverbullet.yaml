@@ -58,7 +58,8 @@ spec:
             limits:
               memory: 512Mi
           volumeMounts:
-            - { name: data, mountPath: /data }
+            # subPath: an empty /data boots multi-space mode; the volume root has lost+found.
+            - { name: data, mountPath: /data, subPath: silverbullet }
             - { name: docs, mountPath: /srv/files/shared/docs }
       volumes:
         - name: data
