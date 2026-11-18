@@ -84,6 +84,9 @@ password login. The status page is public.
   console or API. It defines no `clientScopes` (that would skip the built-in
   email/profile scopes). The config-cli image is built per Keycloak version;
   bump its tag with Keycloak (6.5.1-26.5.5 runs fine against 26.8.1).
+- Keycloak runs with `JAVA_OPTS_APPEND=-XX:-UseBASE64Intrinsics` (here and in
+  gtfs-zone-infra), the CVE-2026-114938 mitigation. The i5-8350U has no
+  AVX-512, so it is defense in depth; keep it until the image ships a fixed JDK.
 - Break-glass: master-realm `admin`, password `KEYCLOAK_ADMIN_PASSWORD` in
   `home/auth/auth.enc.yaml`. App-side: File Browser local `admin` (enable the
   password method), Immich `passwordLogin` in `home/immich/immich-config.enc.yaml`,

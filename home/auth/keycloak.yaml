@@ -44,6 +44,9 @@ spec:
               value: xforwarded
             - name: KC_HEALTH_ENABLED
               value: "true"
+            # CVE-2026-114938 mitigation; drop once the image ships a fixed JDK.
+            - name: JAVA_OPTS_APPEND
+              value: -XX:-UseBASE64Intrinsics
             # Master-realm admin, the break-glass login.
             - name: KC_BOOTSTRAP_ADMIN_USERNAME
               value: admin
